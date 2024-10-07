@@ -25,7 +25,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
     const base64Data = req.file.buffer.toString('base64');
 
     // Create a PDF file from the Base64 data
-    const filePath = path.join(__dirname, 'public', `${Date.now()}.pdf`);
+    const filePath = path.join('/var/www/jimmybuffet.rip/public', `${Date.now()}.pdf`);
+    console.log(`File will be saved to: ${filePath}`);
     fs.writeFile(filePath, base64Data, { encoding: 'base64' }, (err) => {
         if (err) {
             return res.status(500).send('Error saving the file.');

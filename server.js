@@ -18,7 +18,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Function to send the file URL to external API (not the file stream)
-const sendToExternalAPI = (publicUrl) => {
+const sendToExternalAPI = (publicUrl, filePath) => {
     return new Promise((resolve, reject) => {
         console.log('Preparing to send file URL to external API...');
         
@@ -45,11 +45,19 @@ const sendToExternalAPI = (publicUrl) => {
 
         // Send file URL to external API
         fetch("https://sales-room.com/api/1.1/wf/grin", requestOptions)
-            .then(response => {
-                return response.text();
-            })
+            .then(response => response.text())
             .then(result => {
                 console.log('External API Response:', result);
+
+                // Delete the file after a successful API call
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting the file:', err);
+                    } else {
+                        console.log('File deleted successfully:', filePath);
+                    }
+                });
+
                 resolve(result);
             })
             .catch(error => {
@@ -79,7 +87,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     console.log('File converted to Base64');
 
     // Create a PDF file from the Base64 data with the original name
-    const filePath = path.join('/var/www/jimmybuffet.rip/public', originalFileName);
+    const filePath = path.join(__dirname, 'public', , originalFileName);
     console.log(`File will be saved to: ${filePath}`);
 
     fs.writeFile(filePath, base64Data, { encoding: 'base64' }, (err) => {
@@ -94,7 +102,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
         console.log('Public URL generated:', publicUrl);
 
         // Call the function to send the file URL to the external API
-        sendToExternalAPI(publicUrl)
+        sendToExternalAPI(publicUrl, filePath)
             .then(apiResponse => {
                 // Return the result to the client
                 res.json({ url: publicUrl, apiResponse });

@@ -87,7 +87,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     console.log('File converted to Base64');
 
     // Create a PDF file from the Base64 data with the original name
-    const filePath = path.join(__dirname, 'public', originalFileName);
+    const filePath = path.join('/var/www/jimmybuffet.rip/public', originalFileName);
     console.log(`File will be saved to: ${filePath}`);
 
     fs.writeFile(filePath, base64Data, { encoding: 'base64' }, (err) => {
